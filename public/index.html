@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal AI — قراءة الشموع</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <div class="ticker">
+    <div class="ticker-left">
+      <span class="dot" id="connDot"></span>
+      <span id="connLabel">جاهز للتحليل</span>
+    </div>
+    <div class="ticker-brand">Signal <b>AI</b></div>
+    <div class="ticker-clock" id="clock">00:00:00</div>
+  </div>
+
+  <main class="stage">
+
+    <section class="intro">
+      <h1>حلّل الشارت<br>قبل ما تدخل الصفقة</h1>
+      <p>الصق لقطة من الحافظة، أو الصق رابط صورة، أو ارفع ملف — والنظام يقرأ الشموع والمؤشرات الظاهرة ويطلع لك اتجاه واضح.</p>
+    </section>
+
+    <section class="deck">
+
+      <div class="chart-well" id="dropZone">
+        <svg class="candles-bg" viewBox="0 0 400 140" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="30" y1="20" x2="30" y2="60" class="wick"/><rect x="22" y="30" width="16" height="22" class="body up"/>
+          <line x1="70" y1="35" x2="70" y2="90" class="wick"/><rect x="62" y="45" width="16" height="30" class="body down"/>
+          <line x1="110" y1="15" x2="110" y2="55" class="wick"/><rect x="102" y="25" width="16" height="18" class="body up"/>
+          <line x1="150" y1="40" x2="150" y2="100" class="wick"/><rect x="142" y="55" width="16" height="32" class="body down"/>
+          <line x1="190" y1="10" x2="190" y2="50" class="wick"/><rect x="182" y="18" width="16" height="24" class="body up"/>
+          <line x1="230" y1="30" x2="230" y2="95" class="wick"/><rect x="222" y="42" width="16" height="34" class="body down"/>
+          <line x1="270" y1="20" x2="270" y2="65" class="wick"/><rect x="262" y="30" width="16" height="24" class="body up"/>
+          <line x1="310" y1="45" x2="310" y2="105" class="wick"/><rect x="302" y="58" width="16" height="30" class="body down"/>
+          <line x1="350" y1="12" x2="350" y2="58" class="wick"/><rect x="342" y="20" width="16" height="26" class="body up"/>
+        </svg>
+
+        <div class="scan-line" id="scanLine"></div>
+
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+
+        <div class="well-idle" id="wellIdle">
+          <div class="paste-key">Ctrl</div><div class="paste-plus">+</div><div class="paste-key">V</div>
+          <p class="well-title">الصق صورة الشارت هنا</p>
+          <p class="well-sub">أو اسحبها وأفلتها، أو اختر ملف من جهازك</p>
+          <button class="ghost-btn" id="chooseBtn" type="button">اختيار ملف</button>
+        </div>
+
+        <div class="well-preview" id="previewWrap">
+          <img id="preview" alt="معاينة الشارت">
+          <button class="clear-btn" id="clearBtn" type="button" aria-label="إزالة الصورة">✕</button>
+        </div>
+      </div>
+
+      <div class="sys-line mono" id="sysLine">SYS &gt; awaiting_input<span class="cursor">▌</span></div>
+
+      <div class="link-row">
+        <label for="imageUrl">أو الصق رابط صورة مباشر</label>
+        <div class="link-input">
+          <input id="imageUrl" type="url" placeholder="https://...">
+          <button id="fetchUrlBtn" type="button">جلب</button>
+        </div>
+      </div>
+
+      <div class="hints">
+        <label>الأصل
+          <input id="assetHint" placeholder="CAD/JPY OTC">
+        </label>
+        <label>الإطار
+          <select id="timeframeHint">
+            <option value="">يحدده AI</option>
+            <option>5s</option><option>15s</option><option>30s</option>
+            <option>1m</option><option>5m</option><option>15m</option>
+          </select>
+        </label>
+      </div>
+
+      <button class="analyze-fab" id="analyzeBtn" disabled>
+        <span class="fab-circle">
+          <svg viewBox="0 0 24 24" class="fab-icon"><path d="M11 4a7 7 0 1 0 4.9 12l4.05 4.05 1.4-1.4L17.3 14.6A7 7 0 0 0 11 4Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/></svg>
+        </span>
+        <span class="fab-label">تحليل الشارت الآن</span>
+      </button>
+      <p class="fineprint">لا يتم تنفيذ أي صفقة تلقائيا. التحليل مساعد فقط وليس ضمانا للربح — اختبر على حساب تجريبي.</p>
+    </section>
+
+    <section class="readout" id="readout">
+      <div class="readout-top">
+        <span id="assetText">بانتظار صورة الشارت</span>
+        <span class="badge">AI</span>
+      </div>
+
+      <div class="verdict wait" id="verdictBox">
+        <div class="verdict-icon" id="verdictIcon">···</div>
+        <div class="verdict-word" id="directionText">WAIT</div>
+        <div class="verdict-sub" id="confidenceText">ارفع أو الصق صورة للحصول على تحليل</div>
+        <div class="conf-ring-wrap" id="confRingWrap" hidden>
+          <svg class="conf-ring" viewBox="0 0 80 80">
+            <circle class="conf-ring-bg" cx="40" cy="40" r="34"></circle>
+            <circle class="conf-ring-fg" id="confRingFg" cx="40" cy="40" r="34"></circle>
+          </svg>
+          <div class="conf-ring-value" id="confRingValue">0%</div>
+        </div>
+      </div>
+
+      <div class="expiry">
+        <span>الإشارة صالحة لـ</span>
+        <b id="timer" class="mono">00:00</b>
+      </div>
+
+      <div class="mtf-row" id="mtfRow" hidden>
+        <div class="mtf-card" data-tf="short">
+          <span class="mtf-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.5 5v5.3l4 2.3-.75 1.3L11 13V7h1.5Z"/></svg></span>
+          <span class="mtf-label">قصير المدى</span>
+          <span class="mtf-dir" data-role="dir">—</span>
+        </div>
+        <div class="mtf-card" data-tf="medium">
+          <span class="mtf-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.5 5v5.3l4 2.3-.75 1.3L11 13V7h1.5Z"/></svg></span>
+          <span class="mtf-label">متوسط المدى</span>
+          <span class="mtf-dir" data-role="dir">—</span>
+        </div>
+        <div class="mtf-card" data-tf="long">
+          <span class="mtf-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.5 5v5.3l4 2.3-.75 1.3L11 13V7h1.5Z"/></svg></span>
+          <span class="mtf-label">أطول مدى</span>
+          <span class="mtf-dir" data-role="dir">—</span>
+        </div>
+      </div>
+
+      <div class="reasoning">
+        <h3>سبب هذه القراءة</h3>
+        <ul id="reasons"><li>ستظهر الأسباب الفنية هنا بعد التحليل.</li></ul>
+        <div class="tags" id="indicators"></div>
+      </div>
+
+      <p class="warning" id="warning">التحليل لا يضمن نتيجة الصفقة.</p>
+    </section>
+
+    <div class="actions">
+      <a class="broker-link" id="brokerBtn" href="https://pocketoption.com/ar/" target="_blank" rel="noopener">
+        فتح التداول مع الوسيط <span>↗</span>
+      </a>
+      <button class="reset-btn" id="newBtn" type="button">إشارة جديدة</button>
+    </div>
+
+  </main>
+
+  <footer>Signal AI — للاستخدام التجريبي والتحليلي فقط</footer>
+  <script src="/app.js"></script>
+</body>
+</html>
